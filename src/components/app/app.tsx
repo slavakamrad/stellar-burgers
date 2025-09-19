@@ -20,12 +20,19 @@ import {
 } from 'react-router-dom';
 import { ProtectedRoute } from '../protected-route/ProtectedRoute';
 import { AppHeader, IngredientDetails, Modal, OrderInfo } from '@components';
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
+import { useDispatch } from '../../services/store';
+import { fetchIngredients } from '../../services/slices/ingridientsSlice';
 
 const App: FC = () => {
+  const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
   const background = location.state && location.state.background;
+
+  useEffect(() => {
+    dispatch(fetchIngredients());
+  }, [dispatch]);
 
   const handleModalClose = () => {
     navigate(-1);
