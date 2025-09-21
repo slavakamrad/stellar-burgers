@@ -1,32 +1,49 @@
-import { FC, useMemo } from 'react';
+import { FC, useMemo, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { TConstructorIngredient } from '@utils-types';
 import { BurgerConstructorUI } from '@ui';
-import { useSelector } from '../../services/store';
+import { useSelector, useDispatch } from '../../services/store';
 import {
   selectConstructorItems,
   selectOrder,
   selectOrderLoading
 } from '../../services/selectors/selectors';
+import { createOrder, clearOrder } from '../../services/slices/orderSlice';
+import { clearConstructor } from '../../services/slices/constructorSlice';
 
 export const BurgerConstructor: FC = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const constructorItems = useSelector(selectConstructorItems);
   const orderRequest = useSelector(selectOrderLoading);
   const orderModalData = useSelector(selectOrder);
-  // const constructorItems = {
-  //   bun: {
-  //     price: 0
-  //   },
-  //   ingredients: []
-  // };
+  const user = useSelector((state) => state.user.user);
 
-  // const orderRequest = false;
+  const onOrderClick = useCallback(() => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
 
-  // const orderModalData = null;
+    const ingredientIds = [
+      constructorItems.bun?._id,
+      ...constructorItems.ingredients.map(
+        (item: TConstructorIngredient) => item._id
+      ),
+      constructorItems.bun?._id
+    ].filter(Boolean) as string[];
 
-  const onOrderClick = () => {
-    if (!constructorItems.bun || orderRequest) return;
-  };
-  const closeOrderModal = () => {};
+    dispatch(createOrder(ingredientIds));
+  }, [user, constructorItems, dispatch, navigate]);
+
+  const closeOrderModal = useCallback(() => {
+    // Очищаем только если заказ уже оформлен (не во время загрузки)
+    if (!orderRequest) {
+      dispatch(clearOrder());
+      dispatch(clearConstructor());
+    }
+  }, [dispatch, orderRequest]); // Добавил orderRequest в зависимости
 
   const price = useMemo(
     () =>
