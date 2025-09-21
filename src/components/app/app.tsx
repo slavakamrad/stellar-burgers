@@ -23,8 +23,7 @@ import { AppHeader, IngredientDetails, Modal, OrderInfo } from '@components';
 import { FC, useEffect } from 'react';
 import { useDispatch } from '../../services/store';
 import { fetchIngredients } from '../../services/slices/ingridientsSlice';
-import { checkUserAuth, setAuthChecked } from '../../services/slices/userSlice';
-import { getCookie } from '../../utils/cookie';
+import { checkUserAuth } from '../../services/slices/userSlice';
 
 const App: FC = () => {
   const dispatch = useDispatch();
@@ -34,13 +33,7 @@ const App: FC = () => {
 
   useEffect(() => {
     dispatch(fetchIngredients());
-    const accessToken = getCookie('accessToken');
-    console.log(accessToken);
-    if (accessToken) {
-      dispatch(checkUserAuth());
-    } else {
-      dispatch(setAuthChecked(true));
-    }
+    dispatch(checkUserAuth());
   }, [dispatch]);
 
   const handleModalClose = () => {
