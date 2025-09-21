@@ -48,6 +48,7 @@ export const userSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // Register
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -60,12 +61,14 @@ export const userSlice = createSlice({
           'accessToken',
           action.payload.accessToken.split('Bearer ')[1]
         );
-        setCookie('refreshToken', action.payload.refreshToken);
+        localStorage.setItem('refreshToken', action.payload.refreshToken);
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Registration failed';
       })
+
+      // Login
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -78,12 +81,14 @@ export const userSlice = createSlice({
           'accessToken',
           action.payload.accessToken.split('Bearer ')[1]
         );
-        setCookie('refreshToken', action.payload.refreshToken);
+        localStorage.setItem('refreshToken', action.payload.refreshToken);
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Login failed';
       })
+
+      // Check User Auth
       .addCase(checkUserAuth.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -97,7 +102,12 @@ export const userSlice = createSlice({
         state.loading = false;
         state.error = action.error.message || 'Auth check failed';
         state.isAuthChecked = true;
+        // Очищаем невалидные токены при ошибке аутентификации
+        deleteCookie('accessToken');
+        localStorage.removeItem('refreshToken');
       })
+
+      // Update User
       .addCase(updateUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -110,6 +120,8 @@ export const userSlice = createSlice({
         state.loading = false;
         state.error = action.error.message || 'Update failed';
       })
+
+      // Logout
       .addCase(logoutUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -119,11 +131,14 @@ export const userSlice = createSlice({
         state.user = null;
         state.isAuthChecked = true;
         deleteCookie('accessToken');
-        deleteCookie('refreshToken');
+        localStorage.removeItem('refreshToken');
       })
       .addCase(logoutUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Logout failed';
+        // Принудительно очищаем токены даже при ошибке логаута
+        deleteCookie('accessToken');
+        localStorage.removeItem('refreshToken');
       });
   }
 });
