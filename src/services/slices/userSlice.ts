@@ -7,7 +7,7 @@ import {
   getUserApi,
   updateUserApi
 } from '../../utils/burger-api';
-import { setCookie, getCookie, deleteCookie } from '../../utils/cookie';
+import { setCookie, deleteCookie } from '../../utils/cookie';
 
 interface UserState {
   user: TUser | null;
@@ -23,83 +23,11 @@ const initialState: UserState = {
   error: null
 };
 
-export const registerUser = createAsyncThunk(
-  'user/register',
-  async (
-    userData: { email: string; password: string; name: string },
-    { rejectWithValue }
-  ) => {
-    try {
-      const response = await registerUserApi(userData);
-      setCookie('accessToken', response.accessToken.split('Bearer ')[1]);
-      setCookie('refreshToken', response.refreshToken);
-      localStorage.setItem('refreshToken', response.refreshToken);
-      return response.user;
-    } catch (error) {
-      return rejectWithValue('Registration failed');
-    }
-  }
-);
-
-export const loginUser = createAsyncThunk(
-  'user/login',
-  async (
-    userData: { email: string; password: string },
-    { rejectWithValue }
-  ) => {
-    try {
-      const response = await loginUserApi(userData);
-      setCookie('accessToken', response.accessToken.split('Bearer ')[1]);
-      setCookie('refreshToken', response.refreshToken);
-      localStorage.setItem('refreshToken', response.refreshToken);
-      return response.user;
-    } catch (error) {
-      return rejectWithValue('Login failed');
-    }
-  }
-);
-
-export const checkUserAuth = createAsyncThunk(
-  'user/checkAuth',
-  async (_, { rejectWithValue }) => {
-    try {
-      if (getCookie('accessToken')) {
-        const response = await getUserApi();
-        return response.user;
-      }
-      return null;
-    } catch (error) {
-      return rejectWithValue('Not authenticated');
-    }
-  }
-);
-
-export const logoutUser = createAsyncThunk(
-  'user/logout',
-  async (_, { rejectWithValue }) => {
-    try {
-      await logoutApi();
-      deleteCookie('accessToken');
-      deleteCookie('refreshToken');
-      localStorage.removeItem('refreshToken');
-      return null;
-    } catch (error) {
-      return rejectWithValue('Logout failed');
-    }
-  }
-);
-
-export const updateUser = createAsyncThunk(
-  'user/update',
-  async (userData: Partial<TUser>, { rejectWithValue }) => {
-    try {
-      const response = await updateUserApi(userData);
-      return response.user;
-    } catch (error) {
-      return rejectWithValue('Update failed');
-    }
-  }
-);
+export const registerUser = createAsyncThunk('user/register', registerUserApi);
+export const loginUser = createAsyncThunk('user/login', loginUserApi);
+export const checkUserAuth = createAsyncThunk('user/getUser', getUserApi);
+export const updateUser = createAsyncThunk('user/update', updateUserApi);
+export const logoutUser = createAsyncThunk('user/logout', logoutApi);
 
 export const userSlice = createSlice({
   name: 'user',
@@ -124,46 +52,78 @@ export const userSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(
-        registerUser.fulfilled,
-        (state, action: PayloadAction<TUser>) => {
-          state.loading = false;
-          state.user = action.payload;
-          state.isAuthChecked = true;
-        }
-      )
+      .addCase(registerUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.user;
+        state.isAuthChecked = true;
+        setCookie(
+          'accessToken',
+          action.payload.accessToken.split('Bearer ')[1]
+        );
+        setCookie('refreshToken', action.payload.refreshToken);
+      })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.error.message || 'Registration failed';
       })
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(loginUser.fulfilled, (state, action: PayloadAction<TUser>) => {
+      .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload;
+        state.user = action.payload.user;
         state.isAuthChecked = true;
+        setCookie(
+          'accessToken',
+          action.payload.accessToken.split('Bearer ')[1]
+        );
+        setCookie('refreshToken', action.payload.refreshToken);
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.error.message || 'Login failed';
       })
-      .addCase(
-        checkUserAuth.fulfilled,
-        (state, action: PayloadAction<TUser | null>) => {
-          state.user = action.payload;
-          state.isAuthChecked = true;
-        }
-      )
-      .addCase(checkUserAuth.rejected, (state) => {
+      .addCase(checkUserAuth.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(checkUserAuth.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.user;
         state.isAuthChecked = true;
       })
-      .addCase(logoutUser.fulfilled, (state) => {
-        state.user = null;
+      .addCase(checkUserAuth.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Auth check failed';
+        state.isAuthChecked = true;
       })
-      .addCase(updateUser.fulfilled, (state, action: PayloadAction<TUser>) => {
-        state.user = action.payload;
+      .addCase(updateUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.user;
+      })
+      .addCase(updateUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Update failed';
+      })
+      .addCase(logoutUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(logoutUser.fulfilled, (state) => {
+        state.loading = false;
+        state.user = null;
+        state.isAuthChecked = true;
+        deleteCookie('accessToken');
+        deleteCookie('refreshToken');
+      })
+      .addCase(logoutUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Logout failed';
       });
   }
 });
