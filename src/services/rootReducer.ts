@@ -10,6 +10,7 @@ const rootReducer = combineReducers({
   burgerConstructor: burgerConstructorReducer,
   user: userReducer,
   order: orderReducer,
+  userOrders: orderReducer,
   feed: feedReducer
 });
 
