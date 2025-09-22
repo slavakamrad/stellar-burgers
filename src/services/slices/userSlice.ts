@@ -1,13 +1,17 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { TUser } from '@utils-types';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { getCookie, setCookie, deleteCookie } from '../../utils/cookie';
+
 import {
-  registerUserApi,
   loginUserApi,
-  logoutApi,
+  registerUserApi,
   getUserApi,
-  updateUserApi
+  updateUserApi,
+  logoutApi,
+  TLoginData,
+  TRegisterData
 } from '../../utils/burger-api';
-import { setCookie, deleteCookie, getCookie } from '../../utils/cookie';
+
+import { TUser } from '@utils-types';
 
 interface UserState {
   user: TUser | null;
@@ -18,15 +22,30 @@ interface UserState {
 
 const initialState: UserState = {
   user: null,
-  isAuthChecked: true,
+  isAuthChecked: false,
   loading: false,
   error: null
 };
 
-export const registerUser = createAsyncThunk('user/register', registerUserApi);
-export const loginUser = createAsyncThunk('user/login', loginUserApi);
-export const updateUser = createAsyncThunk('user/update', updateUserApi);
-export const logoutUser = createAsyncThunk('user/logout', logoutApi);
+export const loginUser = createAsyncThunk(
+  'user/loginUser',
+  async (data: TLoginData) => {
+    const response = await loginUserApi(data);
+    localStorage.setItem('refreshToken', response.refreshToken);
+    setCookie('accessToken', response.accessToken);
+    return response.user;
+  }
+);
+
+export const registerUser = createAsyncThunk(
+  'user/registerUser',
+  async (data: TRegisterData) => {
+    const response = await registerUserApi(data);
+    localStorage.setItem('refreshToken', response.refreshToken);
+    setCookie('accessToken', response.accessToken);
+    return response.user;
+  }
+);
 
 export const getUser = createAsyncThunk(
   'user/getUser',
@@ -38,66 +57,67 @@ export const getUser = createAsyncThunk(
       }
       return null;
     } catch (error) {
-      console.warn('Ошибка при получении данных пользователя', error);
+      console.warn('Ошибка при получении данных пользователя: ', error);
       return null;
     } finally {
-      dispatch(setAuthChecked(true));
+      dispatch(setAuthChecked());
     }
   }
 );
+
+export const updateUser = createAsyncThunk(
+  'user/updateUser',
+  async (user: Partial<TRegisterData>) => {
+    const response = await updateUserApi(user);
+    return response.user;
+  }
+);
+
+export const logout = createAsyncThunk('user/logout', async () => {
+  await logoutApi();
+  localStorage.removeItem('refreshToken');
+  deleteCookie('accessToken');
+});
 
 export const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    setUser: (state, action: PayloadAction<TUser | null>) => {
+    setUser: (state, action) => {
       state.user = action.payload;
     },
     clearUser: (state) => {
       state.user = null;
     },
-    setAuthChecked: (state, action: PayloadAction<boolean>) => {
+    setAuthChecked: (state) => {
       state.isAuthChecked = true;
-    },
-    clearError: (state) => {
-      state.error = null;
     }
   },
   extraReducers: (builder) => {
     builder
-      .addCase(registerUser.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(registerUser.fulfilled, (state, action) => {
-        state.loading = false;
-        state.user = action.payload.user;
-        setCookie(
-          'accessToken',
-          action.payload.accessToken.split('Bearer ')[1]
-        );
-        localStorage.setItem('refreshToken', action.payload.refreshToken);
-      })
-      .addCase(registerUser.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message || 'Registration failed';
-      })
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload.user;
-        setCookie(
-          'accessToken',
-          action.payload.accessToken.split('Bearer ')[1]
-        );
-        localStorage.setItem('refreshToken', action.payload.refreshToken);
+        state.user = action.payload;
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Login failed';
+        state.error = action.error.message || 'Ошибка при входе';
+      })
+      .addCase(registerUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(registerUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+      })
+      .addCase(registerUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Ошибка при регистрации';
       })
       .addCase(getUser.pending, (state) => {
         state.loading = true;
@@ -106,12 +126,12 @@ export const userSlice = createSlice({
       .addCase(getUser.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload;
+        state.isAuthChecked = true;
       })
       .addCase(getUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Auth check failed';
-        deleteCookie('accessToken');
-        localStorage.removeItem('refreshToken');
+        state.error =
+          action.error.message || 'Ошибка при получении данных пользователя';
       })
       .addCase(updateUser.pending, (state) => {
         state.loading = true;
@@ -119,31 +139,22 @@ export const userSlice = createSlice({
       })
       .addCase(updateUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload.user;
+        state.user = action.payload;
       })
       .addCase(updateUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Update failed';
+        state.error =
+          action.error.message || 'Ошибка при обновлении данных пользователя';
       })
-      .addCase(logoutUser.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(logoutUser.fulfilled, (state) => {
-        state.loading = false;
+      .addCase(logout.fulfilled, (state) => {
         state.user = null;
-        deleteCookie('accessToken');
-        localStorage.removeItem('refreshToken');
       })
-      .addCase(logoutUser.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message || 'Logout failed';
-        deleteCookie('accessToken');
-        localStorage.removeItem('refreshToken');
+      .addCase(logout.rejected, (state, action) => {
+        state.error = action.error.message || 'Ошибка при выходе';
       });
   }
 });
 
-export const { setUser, clearUser, setAuthChecked, clearError } =
-  userSlice.actions;
+export const { setUser, clearUser, setAuthChecked } = userSlice.actions;
+
 export default userSlice.reducer;
