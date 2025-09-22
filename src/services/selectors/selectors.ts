@@ -1,11 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { RootState } from '../store';
-import {
-  TIngredient,
-  TOrder,
-  TOrdersData,
-  TConstructorIngredient
-} from '@utils-types';
+import { TIngredient, TOrder } from '@utils-types';
+import { FeedState } from '../slices/feedSlice';
 
 export const selectIngredients = (state: RootState): TIngredient[] =>
   state.ingredients.ingredients;
@@ -53,15 +49,12 @@ export const selectOrderLoading = (state: RootState): boolean =>
 export const selectOrderError = (state: RootState): string | null =>
   state.order.error;
 
-export const selectFeed = (state: RootState): TOrdersData => state.feed;
-export const selectFeedOrders = (state: RootState): TOrder[] =>
-  state.feed.orders;
-export const selectFeedTotal = (state: RootState): number => state.feed.total;
-export const selectFeedTotalToday = (state: RootState): number =>
-  state.feed.totalToday;
-export const selectFeedLoading = (state: RootState): boolean =>
+export const selectFeed = (state: { feed: FeedState }) => ({
+  orders: state.feed.orders,
+  total: state.feed.total,
+  totalToday: state.feed.totalToday
+});
+export const selectFeedLoading = (state: { feed: FeedState }): boolean =>
   state.feed.loading;
-export const selectFeedError = (state: RootState): string | null =>
+export const sselectFeedError = (state: { feed: FeedState }): string | null =>
   state.feed.error;
-export const selectWsConnected = (state: RootState): boolean =>
-  state.feed.wsConnected;
