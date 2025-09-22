@@ -23,7 +23,7 @@ import { AppHeader, IngredientDetails, Modal, OrderInfo } from '@components';
 import { FC, useEffect } from 'react';
 import { useDispatch } from '../../services/store';
 import { fetchIngredients } from '../../services/slices/ingridientsSlice';
-import { checkUserAuth } from '../../services/slices/userSlice';
+import { getUser } from '../../services/slices/userSlice';
 
 const App: FC = () => {
   const dispatch = useDispatch();
@@ -33,7 +33,7 @@ const App: FC = () => {
 
   useEffect(() => {
     dispatch(fetchIngredients());
-    dispatch(checkUserAuth());
+    dispatch(getUser());
   }, [dispatch]);
 
   const handleModalClose = () => {

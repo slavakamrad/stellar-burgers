@@ -1,6 +1,7 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useSelector } from '../../services/store';
 import { ReactElement } from 'react';
+import { Preloader } from '@ui';
 
 interface ProtectedRouteProps {
   onlyUnAuth?: boolean;
@@ -15,7 +16,7 @@ export const ProtectedRoute = ({
   const { user, isAuthChecked } = useSelector((state: any) => state.user);
 
   if (!isAuthChecked) {
-    return null;
+    return <Preloader />;
   }
 
   if (onlyUnAuth && user) {

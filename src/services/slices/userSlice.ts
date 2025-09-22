@@ -25,7 +25,7 @@ const initialState: UserState = {
 
 export const registerUser = createAsyncThunk('user/register', registerUserApi);
 export const loginUser = createAsyncThunk('user/login', loginUserApi);
-export const checkUserAuth = createAsyncThunk('user/getUser', getUserApi);
+export const getUser = createAsyncThunk('user/getUser', getUserApi);
 export const updateUser = createAsyncThunk('user/update', updateUserApi);
 export const logoutUser = createAsyncThunk('user/logout', logoutApi);
 
@@ -89,16 +89,16 @@ export const userSlice = createSlice({
       })
 
       // Check User Auth
-      .addCase(checkUserAuth.pending, (state) => {
+      .addCase(getUser.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(checkUserAuth.fulfilled, (state, action) => {
+      .addCase(getUser.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload.user;
         state.isAuthChecked = true;
       })
-      .addCase(checkUserAuth.rejected, (state, action) => {
+      .addCase(getUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Auth check failed';
         state.isAuthChecked = true;
