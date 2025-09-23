@@ -42,19 +42,36 @@ export const selectIngredientsError = (state: RootState): string | null =>
   state.ingredients.error;
 
 export const selectOrder = (state: RootState) => state.order.order;
+
 export const selectCurrentOrder = (state: RootState): TOrder | null =>
   state.order.currentOrder;
+
 export const selectOrderLoading = (state: RootState): boolean =>
   state.order.loading;
+
 export const selectOrderError = (state: RootState): string | null =>
   state.order.error;
 
-export const selectFeed = (state: { feed: FeedState }) => ({
-  orders: state.feed.orders,
-  total: state.feed.total,
-  totalToday: state.feed.totalToday
-});
+export const selectFeed = createSelector(
+  (state: RootState) => state.feed,
+  (feed) => ({
+    orders: feed.orders,
+    total: feed.total,
+    totalToday: feed.totalToday
+  })
+);
+
 export const selectFeedLoading = (state: { feed: FeedState }): boolean =>
   state.feed.loading;
+
 export const sselectFeedError = (state: { feed: FeedState }): string | null =>
   state.feed.error;
+
+export const selectUserOrders = (state: RootState): TOrder[] =>
+  state.userOrders.orders;
+
+export const selectUserOrdersLoading = (state: RootState): boolean =>
+  state.userOrders.loading;
+
+export const selectUserOrdersError = (state: RootState): string | null =>
+  state.userOrders.error;

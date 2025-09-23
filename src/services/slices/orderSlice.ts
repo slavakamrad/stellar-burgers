@@ -23,7 +23,7 @@ export const createOrder = createAsyncThunk(
       const response = await orderBurgerApi(ingredientIds);
       return response.order;
     } catch (error) {
-      return rejectWithValue('Failed to create order');
+      return rejectWithValue('Ошибка при создании заказа');
     }
   }
 );
@@ -36,9 +36,9 @@ export const fetchOrderByNumber = createAsyncThunk(
       if (response.success && response.orders.length > 0) {
         return response.orders[0];
       }
-      return rejectWithValue('Order not found');
+      return rejectWithValue('Заказ не найден');
     } catch (error) {
-      return rejectWithValue('Failed to fetch order');
+      return rejectWithValue('Ошибка загрузки заказа');
     }
   }
 );
