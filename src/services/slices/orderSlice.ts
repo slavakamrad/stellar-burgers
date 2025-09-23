@@ -20,7 +20,10 @@ export const createOrder = createAsyncThunk(
   'order/create',
   async (ingredientIds: string[], { rejectWithValue }) => {
     try {
+      console.time('orderBurgerApi call');
       const response = await orderBurgerApi(ingredientIds);
+      console.timeEnd('orderBurgerApi call');
+      console.log(response.order);
       return response.order;
     } catch (error) {
       return rejectWithValue('Ошибка при создании заказа');
