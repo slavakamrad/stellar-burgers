@@ -38,12 +38,11 @@ export const BurgerConstructor: FC = () => {
   }, [user, constructorItems, dispatch, navigate]);
 
   const closeOrderModal = useCallback(() => {
-    // Очищаем только если заказ уже оформлен (не во время загрузки)
     if (!orderRequest) {
       dispatch(clearOrder());
       dispatch(clearConstructor());
     }
-  }, [dispatch, orderRequest]); // Добавил orderRequest в зависимости
+  }, [dispatch, orderRequest]);
 
   const price = useMemo(
     () =>

@@ -21,7 +21,7 @@ export const createOrder = createAsyncThunk(
   async (ingredientIds: string[], { rejectWithValue }) => {
     try {
       const response = await orderBurgerApi(ingredientIds);
-      return response.order; // response уже содержит success и order
+      return response.order;
     } catch (error) {
       return rejectWithValue('Failed to create order');
     }
@@ -33,7 +33,6 @@ export const fetchOrderByNumber = createAsyncThunk(
   async (orderNumber: number, { rejectWithValue }) => {
     try {
       const response = await getOrderByNumberApi(orderNumber);
-      // response содержит { success: boolean, orders: TOrder[] }
       if (response.success && response.orders.length > 0) {
         return response.orders[0];
       }
