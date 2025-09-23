@@ -14,7 +14,6 @@ import { clearConstructor } from '../../services/slices/constructorSlice';
 export const BurgerConstructor: FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
   const constructorItems = useSelector(selectConstructorItems);
   const orderRequest = useSelector(selectOrderLoading);
   const orderModalData = useSelector(selectOrder);
@@ -26,23 +25,26 @@ export const BurgerConstructor: FC = () => {
       return;
     }
 
-    const ingredientIds = [
-      constructorItems.bun?._id,
+    if (!constructorItems.bun) {
+      console.error('Cannot create order: no bun selected');
+      return;
+    }
+
+    const ingredientIds: string[] = [
+      constructorItems.bun._id,
       ...constructorItems.ingredients.map(
         (item: TConstructorIngredient) => item._id
       ),
-      constructorItems.bun?._id
-    ].filter(Boolean) as string[];
+      constructorItems.bun._id
+    ];
 
     dispatch(createOrder(ingredientIds));
   }, [user, constructorItems, dispatch, navigate]);
 
   const closeOrderModal = useCallback(() => {
-    if (!orderRequest) {
-      dispatch(clearOrder());
-      dispatch(clearConstructor());
-    }
-  }, [dispatch, orderRequest]);
+    dispatch(clearOrder());
+    dispatch(clearConstructor());
+  }, [dispatch]);
 
   const price = useMemo(
     () =>

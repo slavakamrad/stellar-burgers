@@ -64,7 +64,7 @@ export const selectFeed = createSelector(
 export const selectFeedLoading = (state: { feed: FeedState }): boolean =>
   state.feed.loading;
 
-export const sselectFeedError = (state: { feed: FeedState }): string | null =>
+export const selectFeedError = (state: { feed: FeedState }): string | null =>
   state.feed.error;
 
 export const selectUserOrders = (state: RootState): TOrder[] =>
