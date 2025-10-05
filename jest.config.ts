@@ -18,7 +18,19 @@ const config: JestConfigWithTsJest = {
     ]
   },
   collectCoverage: true,
-  collectCoverageFrom: ['**/*.{js,jsx}', '!**/node_modules/**', '!**/vendor/**']
+  collectCoverageFrom: [
+    'src/services/slices/**/*.ts',
+    'src/services/rootReducer.ts',
+    '!src/**/*.d.ts',
+    '!src/**/*.stories.{js,jsx,ts,tsx}',
+    '!src/**/*.test.{js,jsx,ts,tsx}',
+    '!src/**/*.spec.{js,jsx,ts,tsx}',
+    '!**/node_modules/**',
+    '!**/coverage/**',
+    '!**/cypress/**',
+    '!**/.storybook/**',
+    '!**/public/**'
+  ],
 };
 
 export default config;
