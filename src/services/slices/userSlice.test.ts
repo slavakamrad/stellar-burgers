@@ -8,19 +8,12 @@ import reducer, {
   clearUser,
   setAuthChecked
 } from './userSlice';
-
-const mockUser = {
-  name: 'Test User',
-  email: 'test@example.com'
-};
-
-const mockLoginData = { email: 'test@example.com', password: 'password' };
-const mockRegisterData = {
-  name: 'Test User',
-  email: 'test@example.com',
-  password: 'password'
-};
-const mockUpdateData = { name: 'Updated User' };
+import {
+  mockUser,
+  mockLoginData,
+  mockRegisterData,
+  mockUpdateData
+} from './__mocks__/user';
 
 describe('тесты для userSlice', () => {
   const initialState = {
