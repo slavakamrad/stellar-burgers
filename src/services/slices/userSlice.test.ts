@@ -22,7 +22,7 @@ const mockRegisterData = {
 };
 const mockUpdateData = { name: 'Updated User' };
 
-describe('тестирование userSlice', () => {
+describe('тесты для userSlice', () => {
   const initialState = {
     user: null,
     isAuthChecked: false,
