@@ -1,7 +1,7 @@
 import rootReducer from './rootReducer';
 import { configureStore } from '@reduxjs/toolkit';
 
-describe('rootReducer', () => {
+describe('тесты для rootReducer', () => {
   it('rootReducer initialization', () => {
     const store = configureStore({
       reducer: rootReducer
