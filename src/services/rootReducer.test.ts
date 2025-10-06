@@ -13,6 +13,6 @@ describe('тесты для rootReducer', () => {
     expect(store.getState().user).toBeDefined();
     expect(store.getState().order).toBeDefined();
     expect(store.getState().userOrders).toBeDefined();
-    expect(store.getState().feed).toBeDefined();    
+    expect(store.getState().feed).toBeDefined();
   });
 });

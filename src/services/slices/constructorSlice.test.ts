@@ -5,7 +5,6 @@ import reducer, {
 } from './constructorSlice';
 import { mockBun, mockMain, mockSauce } from './__mocks__/burgerConstructor';
 
-
 const initialState = {
   constructorItems: {
     bun: null,

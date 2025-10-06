@@ -1,6 +1,10 @@
-import reducer, { createOrder, fetchOrderByNumber, clearOrder, clearCurrentOrder } from './orderSlice';
-import { mockOrder } from './__mocks__/orders'
- 
+import reducer, {
+  createOrder,
+  fetchOrderByNumber,
+  clearOrder,
+  clearCurrentOrder
+} from './orderSlice';
+import { mockOrder } from './__mocks__/orders';
 
 describe('test orderSlice', () => {
   const initialState = {
@@ -19,7 +23,10 @@ describe('test orderSlice', () => {
 
   test('createOrder.fulfilled устанавливает заказ', () => {
     const stateWithLoading = { ...initialState, loading: true };
-    const action = createOrder.fulfilled(mockOrder, 'requestId', ['ing1', 'ing2']);
+    const action = createOrder.fulfilled(mockOrder, 'requestId', [
+      'ing1',
+      'ing2'
+    ]);
     const result = reducer(stateWithLoading, action);
     expect(result.loading).toBe(false);
     expect(result.order).toEqual(mockOrder);
@@ -67,7 +74,11 @@ describe('test orderSlice', () => {
   });
 
   test('clearOrder очищает заказ и ошибку', () => {
-    const stateWithOrder = { ...initialState, order: mockOrder, error: 'Ошибка' };
+    const stateWithOrder = {
+      ...initialState,
+      order: mockOrder,
+      error: 'Ошибка'
+    };
     const action = clearOrder();
     const result = reducer(stateWithOrder, action);
     expect(result.order).toBeNull();
