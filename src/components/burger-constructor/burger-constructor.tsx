@@ -56,8 +56,6 @@ export const BurgerConstructor: FC = () => {
     [constructorItems]
   );
 
-  console.log('orderModalData:', orderModalData);
-
   return (
     <BurgerConstructorUI
       price={price}

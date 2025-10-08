@@ -3,7 +3,7 @@ import { mockBun, mockMain, mockSauce } from './__mocks__/burgerConstructor';
 
 const mockIngredients = [mockBun, mockMain, mockSauce];
 
-describe('ingredients slice', () => {
+describe('тесты для ingredientsSlice', () => {
   const initialState = {
     ingredients: [],
     loading: false,
