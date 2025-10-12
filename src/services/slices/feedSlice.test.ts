@@ -1,7 +1,6 @@
 import { mockFeedData } from './__mocks__/feed';
 import reducer, { getFeeds, clearFeed } from './feedSlice';
 
-
 describe('тесты для feedSlice', () => {
   const initialState = {
     orders: [],
@@ -42,8 +41,8 @@ describe('тесты для feedSlice', () => {
   });
 
   test('clearFeed очищает данные фида', () => {
-    const stateWithData = { 
-      ...initialState, 
+    const stateWithData = {
+      ...initialState,
       orders: mockFeedData.orders,
       total: mockFeedData.total,
       totalToday: mockFeedData.totalToday

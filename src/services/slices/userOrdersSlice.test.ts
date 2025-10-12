@@ -1,6 +1,9 @@
-import reducer, { fetchUserOrders, clearUserOrders, setUserOrdersLoading } from './userOrdersSlice';
-import { mockOrders } from './__mocks__/orders'
-
+import reducer, {
+  fetchUserOrders,
+  clearUserOrders,
+  setUserOrdersLoading
+} from './userOrdersSlice';
+import { mockOrders } from './__mocks__/orders';
 
 describe('userOrders slice', () => {
   const initialState = {
@@ -38,7 +41,11 @@ describe('userOrders slice', () => {
   });
 
   test('clearUserOrders очищает заказы и ошибку', () => {
-    const stateWithOrders = { ...initialState, orders: mockOrders, error: 'Ошибка' };
+    const stateWithOrders = {
+      ...initialState,
+      orders: mockOrders,
+      error: 'Ошибка'
+    };
     const action = clearUserOrders();
     const result = reducer(stateWithOrders, action);
     expect(result.orders).toEqual([]);

@@ -67,4 +67,87 @@ describe('тесты для Burger constructor', () => {
       cy.get(selectors.modal).should('not.exist');
     });
   });
+
+  describe('Создание заказа', () => {
+    beforeEach(() => {
+      cy.intercept('GET', 'api/auth/user', { fixture: 'user.json' });
+      cy.intercept('POST', 'api/orders', { fixture: 'order.json' }).as(
+        'createOrder'
+      );
+
+      window.localStorage.setItem('accessToken', 'Bearer test-token');
+      window.localStorage.setItem('refreshToken', 'test-refreshToken');
+
+      cy.visit('/');
+      cy.intercept('GET', 'api/ingredients', {
+        fixture: 'ingredients.json'
+      }).as('getIngredients');
+      cy.wait('@getIngredients');
+    });
+
+    afterEach(() => {
+      cy.clearLocalStorage();
+    });
+
+    describe('Создание заказа', () => {
+      beforeEach(() => {
+        cy.intercept('POST', 'api/orders', { fixture: 'order.json' }).as(
+          'createOrder'
+        );
+        cy.intercept('POST', 'api/auth/login', { fixture: 'login.json' }).as(
+          'login'
+        );
+        cy.intercept('GET', 'api/auth/user', { fixture: 'user.json' }).as(
+          'getUser'
+        );
+        cy.visit('/');
+        cy.intercept('GET', 'api/ingredients', {
+          fixture: 'ingredients.json'
+        }).as('getIngredients');
+        cy.wait('@getIngredients');
+      });
+
+      afterEach(() => {
+        cy.clearLocalStorage();
+      });
+
+      it('Оформление заказа и отображение номера', () => {
+        cy.get(selectors.ingredientCategoryBuns)
+          .get(selectors.ingredientItem)
+          .contains('Добавить')
+          .click();
+
+        cy.get(selectors.ingredientCategoryMains)
+          .next('ul')
+          .find(selectors.ingredientItem)
+          .first()
+          .find('button')
+          .contains('Добавить')
+          .click();
+
+        cy.get(selectors.orderButton).click();
+
+        cy.url().then((url) => {
+          if (url.includes('/login')) {
+            cy.get('input[type=email]').type('slavakamrad@megamail.com');
+            cy.get('input[type=password]').type('password');
+            cy.get('button[type=submit]').click();
+            cy.wait('@login');
+            cy.get(selectors.orderButton).click();
+          }
+        });
+
+        cy.wait('@createOrder');
+
+        cy.get(selectors.modal).should('exist');
+        cy.get(selectors.modal).contains('90975');
+
+        cy.get(selectors.modalClose).click();
+        cy.get(selectors.modal).should('not.exist');
+
+        cy.get(selectors.constructorBunTop).should('not.exist');
+        cy.get(selectors.constructorIngredient).should('have.length', 0);
+      });
+    });
+  });
 });

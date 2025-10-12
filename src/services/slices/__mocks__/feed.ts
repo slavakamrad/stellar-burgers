@@ -1,6 +1,4 @@
-
-
-export const mockFeedData  = {
+export const mockFeedData = {
   success: true,
   orders: [
     {
@@ -23,6 +21,5 @@ export const mockFeedData  = {
     }
   ],
   total: 100,
-  totalToday: 10 
+  totalToday: 10
 };
- 
